@@ -224,3 +224,43 @@ db.person.aggreagate([
 # $type $or $lt $gt $and $multiply
 # usually work with project stage
 
+
+ 
+# Lookup field 
+from :<collection to join>
+localfield:<field from the input documets>
+foreignfield:<field from the documents of the "from" collection>,
+as:<output array field>
+
+$lookup:{
+    from:"air_airlines",
+    localfield:"airlines",
+    foreignfield:"name",
+    as:"airlines"
+}
+
+db.cities.aggregate([
+    {
+        $match: {
+            "continent": { $in: ["North America", "Asia"] }
+        }
+    },
+    {
+        $sort: { "population": -1 }
+    },
+    {
+        $group: {
+            "_id": {
+                "continent": "$continent",
+                "country": "$country"
+            },
+            "first_city": { $first: "$name" },
+            "highest_population": { $max: "$population" }
+        }
+    },
+    {
+        $match: {
+            "highest_population": { $gt: 20.0 }
+        }
+    }
+])
